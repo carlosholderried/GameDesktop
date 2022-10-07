@@ -39,9 +39,6 @@ public class Boss : MonoBehaviour
 		StartCoroutine(SpykesBoss());
         currentHealth = maxHealth;
         rb = this.GetComponent<Rigidbody2D>();
-
-        // bossPositionX = boss.transform.position.x; aaa aaaa
-        // bossPositionY = boss.transform.position.y; aaaa
     }
 
 
@@ -140,8 +137,6 @@ public class Boss : MonoBehaviour
         player.GetComponent<PlayerScript>().PlayEnemyGotHurt();
         currentHealth -= damage;
         anim.SetTrigger("gotHurt");
-        //anim.SetTrigger("Hurt");
-        //StartCoroutine(Stagger());
 
         if (currentHealth <= 0)
         {

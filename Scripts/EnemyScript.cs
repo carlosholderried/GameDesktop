@@ -6,12 +6,12 @@ using UnityEngine.SceneManagement;
 public class EnemyScript : MonoBehaviour
 {
 	//Variaveis privadas
-	RaycastHit2D groundInfo;  // nao sei se precisa
+	RaycastHit2D groundInfo;  
 	int currentHealth;
 	private Rigidbody2D rb;
 	private Vector2 movement;
 	private float playerDistance;
-	float nextAttackTime = 0f;      // sei la
+	float nextAttackTime = 0f;     
 	bool left = true;
 	float edgeCheckX = 0f;
 	float edgeCheckY = 0f;
@@ -19,6 +19,8 @@ public class EnemyScript : MonoBehaviour
 	bool moving = true;
 	bool dead = false;
 	bool active = false;
+	int contBandit = 2;
+	int contSkelly = 3;
 
 	//Variaveis publicas
 	public float moveSpeed;
@@ -27,7 +29,7 @@ public class EnemyScript : MonoBehaviour
 	public Transform player;
 	public Transform edgeCheckT;
 	public Transform enemy;
-	public SpriteRenderer spr; //dss
+	public SpriteRenderer spr; 
 	public GameObject edgeCheck;
 	public float rayDistance = 1;
 	public int attackDamage = 50;
@@ -39,7 +41,8 @@ public class EnemyScript : MonoBehaviour
 	public GameObject daggerPrefab;
 	public Transform throwPoint;
 	public Transform gm;
-	//public GameObject spearPrefab;  
+	public Transform hearts;
+	public Transform bleed;
 
     // FUNCAO QUE RODA 1X NO INICIO 
     void Start()
@@ -57,7 +60,6 @@ public class EnemyScript : MonoBehaviour
 	{
 		if (player.position.y > 10f && dead == false)
 		{
-			//ground.GetComponent<SkellyCollider>().DisableCollider();
 			if(active==false)
 			{
 				StartCoroutine(StopCollider());
@@ -75,7 +77,7 @@ public class EnemyScript : MonoBehaviour
 			bool isDeadTemp = player.GetComponent<Animator>().GetBool("isDead");
 
 			//ATACA O PLAYER CASO NÃO TENHA TOMADO HIT E O PLAYER ESTEJA VIVO E PERTO DO INIMIGO e player nao ta pulando
-			if (player.position.y < 10f && playerDistance <= enemyRange && isDeadTemp == false && isHurt == false)               // ataca o player aa aaaaaaa
+			if (player.position.y < 10f && playerDistance <= enemyRange && isDeadTemp == false && isHurt == false)               // ataca o player 
 			{
 				StartCoroutine(RealAttack());
 				//FUNCAO PARA STAGGER DO INIMIGO
@@ -83,7 +85,6 @@ public class EnemyScript : MonoBehaviour
 				{
 					//ESPERA 0.3 SEGUNDOS					
 					yield return new WaitForSeconds(0.3f);
-					//difY = Mathf.Abs(enemy.position.y-player.position.y); nao funfou
 					//ATACA O PLAYER CASO ELE ESTEJA PERTO, NAO ESTEJA PULANDO, NAO ESTEJA MORTO E O ATACANTE NAO TOMOU HIT RECENTEMENTE
 					if (Time.time >= nextAttackTime && player.position.y < 10 && playerDistance <= enemyRange && isDeadTemp == false && isHurt == false)
 					{
@@ -106,7 +107,7 @@ public class EnemyScript : MonoBehaviour
 		{
 			playerDistance = Mathf.Abs(enemy.transform.position.x - player.transform.position.x);
 
-			//Variavel "groundInfo" recebe as informações de um raycast que "monitora" o chão qs aaaaaa
+			//Variavel "groundInfo" recebe as informações de um raycast que "monitora" o chão 
 			groundInfo = Physics2D.Raycast(edgeCheck.transform.position, Vector2.down, rayDistance);
 			// diferença do y do inimigo para o y onde deve ficar a bolinha do raycheck
 			edgeCheckY = enemy.transform.position.y - difRayY;
@@ -159,13 +160,11 @@ public class EnemyScript : MonoBehaviour
 			//SE FOR UM BANDIDO
 			if (enemy.CompareTag("Bandit"))
 			{
-				//VIRA A SPRITE PARA A ESQUERDA SE O PLAYER ESTIVER A ESQUERDA  aa
-				if (enemy.transform.position.x > player.transform.position.x) //fdgj
+				//VIRA A SPRITE PARA A ESQUERDA SE O PLAYER ESTIVER A ESQUERDA 
+				if (enemy.transform.position.x > player.transform.position.x) 
 				{
 					//inverte a direção que o inimigo anda(sprite only)
 					spr.flipX = false;
-					//Quaternion rotation = Quaternion.Euler(0, 0, 0);
-					//enemy.transform.rotation = rotation;
 					// inverte X do edgeCheck
 					left = true;
 				}
@@ -174,9 +173,6 @@ public class EnemyScript : MonoBehaviour
 				{
 					//inverte a direção que o inimigo anda(sprite only)
 					spr.flipX = true;
-					// inverte X do edgeCheck
-					//Quaternion rotation = Quaternion.Euler(0, 180, 0);
-					//enemy.transform.rotation = rotation;
 					left = false;
 				}
 			}
@@ -201,11 +197,9 @@ public class EnemyScript : MonoBehaviour
 					// inverte X do edgeCheck
 					left = false;
 				}
-
 			}
 		}
-	}
-	
+	}	
 
 	//FUNCAO DE ATAQUE
 	IEnumerator AttackAaa()
@@ -232,15 +226,7 @@ public class EnemyScript : MonoBehaviour
 
 	void Throw()
 	{
-     //   if(enemy.CompareTag("Skeleton"))
-	//	{
-			//Instantiate(spearPrefab, throwPoint.position, throwPoint.rotation);
-	//	}
-      //  else
-		//{
-			Instantiate(daggerPrefab, throwPoint.position, throwPoint.rotation);
-	//	}
-		
+			Instantiate(daggerPrefab, throwPoint.position, throwPoint.rotation);		
 	}
 
 	IEnumerator StopMov()
@@ -256,7 +242,24 @@ public class EnemyScript : MonoBehaviour
 	public void TakeDamage(int damage)
 	{
 		currentHealth -= damage;
-
+				
+				
+		if (enemy.CompareTag("Bandit"))
+		{
+			Vector3 bleedPosition = new Vector3(enemy.position.x, enemy.position.y+1.4f, enemy.position.z);
+			
+			Instantiate(bleed, bleedPosition, enemy.rotation);
+			
+			contBandit = contBandit -1;
+			
+			hearts.GetComponent<Hearts>().checkHearts(contBandit); 
+		}
+		else 
+		{
+			contSkelly = contSkelly -1;		
+			hearts.GetComponent<Hearts>().checkHearts(contSkelly);
+		}
+		
 		StartCoroutine(Stagger());
 
 		player.GetComponent<PlayerScript>().PlayEnemyGotHurt();
@@ -282,7 +285,6 @@ public class EnemyScript : MonoBehaviour
 
 		}
 	}
-	
 	
 	//FUNCAO PARA STAGGER DO INIMIGO
 	IEnumerator Stagger()
@@ -315,8 +317,7 @@ public class EnemyScript : MonoBehaviour
     {
 		rb.MovePosition((Vector2)transform.position + (direction * moveSpeed * Time.deltaTime));
 	}
-	//Usamos a função Translate para mover o inimigo	
-        //transform.Translate(Vector2.left * speed * Time.deltaTime);
+
 	
 	
 }

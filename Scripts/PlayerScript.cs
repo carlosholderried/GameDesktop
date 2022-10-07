@@ -55,6 +55,8 @@ public class PlayerScript : MonoBehaviour
 	public float difRayX = -0.6f;
 	public GameObject bulletPrefab;
 	public Transform cam;
+	public Transform bleed;
+	public Transform smokeJump;
 
 	// Start is called before the first frame update aaa
 	void Start()
@@ -63,7 +65,6 @@ public class PlayerScript : MonoBehaviour
 		playerSpeed = 5f; // IEnumerator Slow() seta speed tb
 		//Inicialização de Variáveis
 		rb = GetComponent<Rigidbody2D>();
-		//rb = this.GetComponent<Rigidbody2D>();
 		//Atribuindo a scene atual para a variavel 'scn'
 		spr = GetComponent<SpriteRenderer>();
 		anim = GetComponent<Animator>();
@@ -73,11 +74,8 @@ public class PlayerScript : MonoBehaviour
 		currentPower = maxPower;
 		aguaCounterText.text = currentAgua.ToString("0") + "/" + maxAgua.ToString("0");
 		powerCounterText.text = currentPower.ToString("0") + "/" + maxPower.ToString("0");
-		lifeCounterText.text = currentHealth.ToString("000") + "/" + maxHealth.ToString("000");
-		
-		
+		lifeCounterText.text = currentHealth.ToString("000") + "/" + maxHealth.ToString("000");				
 	}
-
 
     // UPDATE is called once per frame
     void Update()
@@ -102,7 +100,7 @@ public class PlayerScript : MonoBehaviour
 			// toca o audio
 			audioS.PlayOneShot(jumpSFX, 0.1f);
 			}
-		}			
+		}		
 		isJumping = anim.GetFloat("speedY");
 
 		//ATAQUE
@@ -173,10 +171,13 @@ public class PlayerScript : MonoBehaviour
 		//Se 'Jump' for verdadeiro	
 		if(jump == true)
 		{
-
 			//Atribui a força no Rigidbody2D do player	
-			rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);			
-
+			rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);					
+			
+			Vector3 smokeJumpPosition = new Vector3(player.position.x+0.05f, player.position.y-0.2f, player.position.z);
+			
+			Instantiate(smokeJump, smokeJumpPosition, player.rotation);
+			
 			// Jump se torna falso
 			jump = false;
 
@@ -208,8 +209,6 @@ public class PlayerScript : MonoBehaviour
 		}
 		
 	}
-
-
 
 
 	void Shoot()
@@ -248,10 +247,14 @@ public class PlayerScript : MonoBehaviour
 		}		
 	}
 
-	public void PlayerTakeDamage(int damage)  //player toma damage aa a aa
+	public void PlayerTakeDamage(int damage)  //player toma damage 
 	{
 		audioS.PlayOneShot(playerHurtSFX, 0.2f);
 		currentHealth -= damage;
+		
+		Vector3 bleedPosition = new Vector3(player.position.x, player.position.y, player.position.z);
+			
+			Instantiate(bleed, bleedPosition, player.rotation);
 		
 		if (currentHealth>0)
 		{
@@ -311,17 +314,13 @@ public class PlayerScript : MonoBehaviour
 	//Função de colisão do tipo Trigger
 	private void OnTriggerEnter2D(Collider2D collision)
 	{	
-		//se colidir com um objeto com a tag "pickup Gem" aaa
+		//se colidir com um objeto com a tag "pickup Gem" 
 		if (collision.CompareTag("Pickup Gem"))
 		{
 			//Chama a função AddGem que está declarada no Game Manager
 			GameManager.gm.AddGem();
 			//destroi o objeto com o qual o player colidiu			 
 			 Destroy(collision.gameObject);
-			 //Instancia um objeto "itemFeedback" na posição e na rotação da colisão
-			 //Instantiate(itemFeedback, collision.transform.position, collision.transform.rotation);
-			 // toca o audio
-			 //audioS.PlayOneShot(pickupSFX);
 		}
 
 		if (collision.CompareTag("Agua"))
@@ -357,16 +356,11 @@ public class PlayerScript : MonoBehaviour
 	
 	//Declaração da coroutine PlayerDeath(morte do player)
 	IEnumerator PlayerDeath()
-	{
-		
+	{		
 		//aciona o trigger da animação de morte no animator		 
 		anim.SetBool("isDead", true);	  
 		anim.SetTrigger("DEAD");
 		dead = true;
-		//yield return new WaitForSeconds(0.3f);   
-		//roda o audio  
-		//audioS.PlayOneShot(playerDeathSFX);
-		//audioS.PlayOneShot(playerDeathSFX);
 		currentHealth = 0;
 		lifeCounterText.text = currentHealth.ToString("000") + "/" + maxHealth.ToString("000");
 		//Desabilita o controle do player
@@ -376,37 +370,11 @@ public class PlayerScript : MonoBehaviour
 		//troca o tipo do rigidbody para 0
 		rb.isKinematic = true;
 		//desliga o componente capsuleCollider do player
-		GetComponent<CapsuleCollider2D>().enabled = false;
-		
+		GetComponent<CapsuleCollider2D>().enabled = false;		
 		//Pausa na coroutine de 2.5 segundos
 		yield return new WaitForSeconds(2.5f);
 		//chama a função ReloadScene do Game Manager
 		GameManager.gm.ReloadScene();
 	}	
 	
-	 /*IEnumerator ExecuteAfterTime(float time)
-		 {
-			 yield return new WaitForSeconds(time);
-		 
-			 // Code to execute after the delay
-		 }*/
-	
-	/*
-	//Função de colisão do tipo "não trigger"	
-	private void OnCollisionEnter2D(Collision2D collision)
-	{	
-		//Detecta se o player colidiu com um objeto que possui a tag "Enemy"
-		if(collision.gameObject.CompareTag("Enemy"))
-		{
-			//atribui true a variavel jump
-			jump = true;
-			//Destroi o objeto com o qual o player colidiu
-			Destroy(collision.gameObject);
-			//roda o audio
-			audioS.PlayOneShot(enemyDeathSFX, 0.2f);
-			//Instancia um objeto "itemFeedback" na posição e na rotação da colisão
-			Instantiate(enemyDeathPF, collision.transform.position, collision.transform.rotation);
-		}
-	}
-	*/
 }

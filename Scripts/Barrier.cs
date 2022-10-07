@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class Barrier : MonoBehaviour
 {
-	public GameObject barrier; // aa
+	public GameObject barrier; 
 
-	// Start is called before the first frame update
-	void Start()
-	{
-		//barrier.SetActive(true);
-	}
 
 	public void BarrierOff()
 	{

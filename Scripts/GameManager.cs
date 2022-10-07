@@ -69,7 +69,6 @@ public class GameManager : MonoBehaviour
 			//grava a chave para habilitar a proxima fase no menu de seleção de fases
 			PlayerPrefs.SetInt("Level" + (scn.buildIndex + 1).ToString() + "Unlocked", 1);
 			LoadNextLevel();
-			//endLevelPanel.SetActive(true);
 			//PAUSA o jogo
 			Time.timeScale = 0;
 		}

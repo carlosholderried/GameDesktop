@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GroundOnOff : MonoBehaviour
 {
-	public GameObject blocos; // aa
+	public GameObject blocos; 
 	
     // Start is called before the first frame update
     void Start()

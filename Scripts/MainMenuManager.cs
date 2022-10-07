@@ -66,7 +66,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    //funcao para sair do jogo(funciona somente para PC) h
+    //funcao para sair do jogo(funciona somente para PC) 
     public void QuitGame()
     {
         Application.Quit();
